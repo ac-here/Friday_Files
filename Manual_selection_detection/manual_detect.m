@@ -23,6 +23,7 @@
 %           signal_type     At present, only these signals are allowed.
 %                           1. ECG
 %                           2. PPG (Not tested)
+%                               Use PPG for Pressure signal as well
 % Output    detections      Detection of the waveform
 %           Error_Message   Information on any error message
 

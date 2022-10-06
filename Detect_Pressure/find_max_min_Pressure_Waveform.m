@@ -1,6 +1,9 @@
 % Author Anand Chandrasekhar
 % This function detects the features of a BP signal. The algorithm detects 
-% features of BP  singal like the minima and maxima.
+% features of BP  signal like the minima and maxima of a beat . The
+% location of the detections are saved into an array in the following
+% format output = [maxima_locations minima locations]
+
 % Input:        time                        Time vector
 %               signal                      Pressure Signal  
 %               Allowed_threshold_signal    Min max of the signal
@@ -64,8 +67,6 @@ function detections = find_max_min_Pressure_Waveform(...
     time = time(:);
     signal = signal(:);
 
-    clear ID_file
-
     % Decide the starting point
     % Start point should be in units of seconds. The code will detect
     % features from beats from the start_point
@@ -80,6 +81,12 @@ function detections = find_max_min_Pressure_Waveform(...
         fprintf('%3.3f Hours of data loaded\t', (max(time) - min(time))/60/60);
     end
 
+    % This code helps to locate the first maxima.
+    % There are two ways to locate it.
+    % Option 1: Manual detections
+    % Option 2: Detections using FFT. If detections using FFT fails,
+    % algorithm resort to manual detections. 
+    
     if Locate_Maxima_Manually
         % Locate the number of samples in a beat
         [X_start, Samples_beat, ...
@@ -125,7 +132,8 @@ function detections = find_max_min_Pressure_Waveform(...
     Array_Max_last_few_beats_X = time(maxx);
     
     % Find all maxima locations
-    while TO_added < (Max_Time - 10*Fs)    
+    % Data for the last 10s will be not be calculated
+    while TO_added < (Max_Time - 10)    
                        
         [Range_max_input, ...
             Maxx_return, ...

@@ -1,10 +1,10 @@
-% This function detects Minima and Maxima locations of a PPG signal
+% This function detects Minima and Maxima locations of a BP signal
 
 % Following authors created a wrapper for all ECG detections presented here 
 % Author:       Anand Chandrasekhar           
 
 % Requirements:
-% Clone this repository https://github.mit.edu/anandc/Friday_Files
+% Clone this repository https://github.edu/ac-here/Friday_Files
 
 % We have attached a sample data to test our code.
 % Run this script to explore the features of PPG detection
@@ -15,7 +15,8 @@ clc; close all; clear
 % Load the data
 load('Sample_data1.mat', 'Signal', 'Time');
 
-Org_detections = find_max_min_PPG(Time, Signal);                                                                          
+% Detect the beats
+Org_detections = find_max_min_Pressure_Waveform(Time, Signal, [40 180]);                                                                          
 
 % Run the code to manually confirm if the peaks are correct.
 % You may select/de-select any peaks using mouse.
