@@ -16,6 +16,7 @@ clc; close all; clear
 load('Sample_data1.mat', 'Signal', 'Time');
 
 % Detect the beats
+% output = [peak_locations foot_locations]
 Org_detections = find_max_min_Pressure_Waveform(Time, Signal, [40 180]);                                                                          
 
 % Run the code to manually confirm if the peaks are correct.
@@ -23,6 +24,16 @@ Org_detections = find_max_min_Pressure_Waveform(Time, Signal, [40 180]);
 % Follow the instruction inside the script
 % figure();
 detections = manual_detect(Time, Signal, Org_detections, 30, 'PPG');
+
+% Find the beat to beat values of SP, DP, MAP of a signal
+% This function can ensample average the beat while measuring BP.
+% More details available in the function
+[SP, DP, MAP, PP, HR_BPM, ....
+            Time_axis] ...
+                = find_beat_to_beat_parameters_of_the_wave(...
+                        Time, Signal, ...
+                        detections(:, 2), ...
+                        [], 1, '', false, 2, [], [], []);
 
 subplot(2, 1, 1);
 plot(Time, Signal);hold on;
