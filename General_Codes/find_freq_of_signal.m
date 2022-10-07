@@ -1,9 +1,11 @@
-function [Samples_beat, Fund_Freq] = find_freq_of_signal(Fs, Signal, MIN_FREQ, MAX_FREQ, plot_Freq)
+function [Samples_beat, Fund_Freq] = find_freq_of_signal(Fs, Signal, MIN_FREQ, MAX_FREQ, N_FFT, plot_Freq)
 
     % Sampling rate is Fs
 
     % Order of FFT (Should be even number)
-    N_FFT       = 1024;
+    if ~exist('N_FFT', 'var')
+        N_FFT = 4096;
+    end
 
     if ~exist('MAX_FREQ', 'var')
         MAX_FREQ = 4;
