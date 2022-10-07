@@ -2,19 +2,24 @@
 % This function detects the features of a BP signal. The algorithm detects 
 % features of BP  signal like the minima and maxima of a beat . The
 % location of the detections are saved into an array in the following
-% format output = [maxima_locations minima locations]
+% format output = [maxima_locations minima locations].
+
+% This code maynot work if the heart rate of the patient is more than 2 Hz
 
 % Input:        time                        Time vector
 %               signal                      Pressure Signal  
 %               Allowed_threshold_signal    Min max of the signal
-%                                           [30 180] in mmHg            
+%                                           [30 180] in mmHg    
+%               plot_detections             True: plot results
+%                                           False: No plots
 
 %Output         detections          [Peak Foot]
            
-function detections = find_max_min_Pressure_Waveform(...
+function detections_return = find_max_min_Pressure_Waveform(...
                                         time, ...
                                         signal, ...
-                                        Allowed_threshold_signal)
+                                        Allowed_threshold_signal, ...
+                                        plot_detections)
                                     
     
     % Start parallel pooling if not enabled
@@ -24,8 +29,8 @@ function detections = find_max_min_Pressure_Waveform(...
     tic
                                           
     % Initialize all the variables
-    maxima              = [];
-    detections          = [];
+    maxima                      = [];
+    detections_return           = [];
         
     % Ensure the starting point of time  is 0s
     time                = time - time(1);
@@ -74,7 +79,7 @@ function detections = find_max_min_Pressure_Waveform(...
 
     % Compute the number of samples in a beat.
     if length(signal) < floor(10*Fs)
-        detections = [];
+        detections_return = [];
         fprintf('Very less data. Abort\t');
         return;
     else
@@ -257,12 +262,27 @@ function detections = find_max_min_Pressure_Waveform(...
     maxima                      = maxima(unique_index);
     
     detections                  = [maxima minima];
+
+    % Beats with Pulse Pressure less than 10 mmHg is removed.
+    Rem_me                      = (signal(maxima) - signal(minima)) < 10;
+    detections(Rem_me, :)       = [];
+
+    % This segment of the code confirm if the located maxima or minima is
+    % good. This code fragment helps to remove dicrotic notices from maxima
+    % detections
+    detections_1 = check_if_maxima_minima_correct(signal, detections, Allowed_threshold_signal);
         
-    detections = update_peak_minima_locations(signal, detections, Fs, Allowed_threshold_signal);
-    
-%     plot(time, signal);hold on;
-%     plot(time(detections(:, 1)), signal(detections(:, 1)),'or');
-%     plot(time(detections(:, 2)), signal(detections(:, 2)),'*b');
+    % This segment of the code try to locate undetected beats 
+    detections_2 = update_peak_minima_locations(signal, detections_1, Fs, Allowed_threshold_signal);
+
+    detections_return = detections_2;
+
+    if plot_detections    
+        plot(time, signal);hold on;
+        plot(time(detections_return(:, 1)), signal(detections_return(:, 1)),'or', 'MarkerSize', 10);
+        plot(time(detections_return(:, 2)), signal(detections_return(:, 2)),'ob', 'MarkerSize', 10);
+        hold off
+    end
 
     fprintf('Time Elaspsed = %3.2f mts \t', toc/60);
 end

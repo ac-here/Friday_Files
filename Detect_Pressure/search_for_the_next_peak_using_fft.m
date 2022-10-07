@@ -69,9 +69,9 @@ function [MAXIMA_LOCATED_FLAG, ...
             return;
         end
         
-        [Samples_beat, F0]  = find_freq_of_signal(Fs, Sig_fft, 0.5, 2);
+        [Samples_beat, F0]  = find_freq_of_signal(Fs, Sig_fft, 0.5, 2, 4096);
 
-        if F0 > 0.5 && F0 <= 2
+        if F0 > 0.5 && F0 <= 2.5
             Index_window        = (T_start_point_index+Samples_beat: T_start_point_index + 2*Samples_beat);
             MAXIMA_LOCATED_FLAG = true;
         else
