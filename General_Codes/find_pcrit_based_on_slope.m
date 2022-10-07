@@ -1,6 +1,6 @@
 % Author: Anand Chandrasekhar
 % Use this function to calculate Pcrit from X and Y Data
-% Here, Pcrit can be estimated from the Y axis intercept of the 
+% Here, Pcrit can be estimated from the Y axis intercept of the MAP versus PP*HR  
 % Input:    
 %           time                    Time vector
 %                                   Express in seconds.or datetime format
@@ -18,22 +18,25 @@
 %           factor                  factor of block_time_in_minutes to update Pcrit
 %                                   factor = 0.5;
 % Output    Pcrit       
-function [Pcrit, R, Error_Message, Time_stamp] ...
-                    = find_pcrit_based_on_slope(...
-                    time, ...
-                    X_axis_data, Y_axis_MAP_data, ...
-                    block_time_in_minutes, ...
-                    threshold_X, ...
-                    range_X, ...
-                    range_Y, ...
-                    threshold_Length, ...
-                    factor)
+function [Pcrit, R, Error_Message, Time_stamp, MAP_value] ...
+                            = find_pcrit_based_on_slope(...
+                                time, ...
+                                X_axis_data, Y_axis_MAP_data, ...
+                                block_time_in_minutes, ...
+                                threshold_X, ...
+                                range_X, ...
+                                range_Y, ...
+                                threshold_Length, ...
+                                factor)
 
     % Error Message
     Error_Message{1, 1} = '';
 
     % Estimated Pcrit
     Pcrit           = nan(1, 1);
+
+    % Mean MAP
+    MAP_value       = nan(1, 1);
 
     % Estimated Starling resistor
     R               = nan(1, 1); 
@@ -127,7 +130,7 @@ function [Pcrit, R, Error_Message, Time_stamp] ...
     counter_i   = 1;
 
     % Calculate Pcrit and R 
-    while (T_start + block_time_in_minutes) < (max(T_calc) - block_time_in_minutes*2)  
+    while (T_start + block_time_in_minutes) < max(T_calc)  
     
         % End point time
         T_end = T_start + block_time_in_minutes; 
@@ -156,6 +159,7 @@ function [Pcrit, R, Error_Message, Time_stamp] ...
             Error_Message{counter_i, 1} = 'Empty X or Y';
 
             Pcrit(counter_i, 1)         = nan;
+            MAP_value(counter_i, 1)     = nan;
             R(counter_i, 1)             = nan; 
             r2_value(counter_i, 1)      = nan;
 
@@ -175,6 +179,7 @@ function [Pcrit, R, Error_Message, Time_stamp] ...
             Error_Message{counter_i, 1} = sprintf('length(X)=%d<%d', length(X), threshold_Length);
 
             Pcrit(counter_i, 1)         = nan;
+            MAP_value(counter_i, 1)     = nan;
             R(counter_i, 1)             = nan; 
             r2_value(counter_i, 1)      = nan;
             
@@ -192,26 +197,30 @@ function [Pcrit, R, Error_Message, Time_stamp] ...
 
         p_fit           = polyfit(X, Y, 1);  
         
-        Y_est = polyval(p_fit, X);
-        MAT = orrcoef(Y_est, Y);
-        r_value = MAT(1, 2);
-        r2_value(counter_i, 1) = r_value^2;
+%        Y_est = polyval(p_fit, X);
+%         MAT = corrcoef(Y_est, Y);
+%         r_value = MAT(1, 2);
+%         r2_value(counter_i, 1) = r_value^2;
 
         if max(X) - min(X) >= threshold_X && p_fit(1) > 0 && p_fit(2) > 0           
             Pcrit(counter_i, 1)         = p_fit(2);
             R(counter_i, 1)             = p_fit(1); 
+            MAP_value(counter_i, 1)     = mean(Y); 
             Error_Message{counter_i, 1} = '';
         elseif max(X) - min(X) < threshold_X
             Error_Message{counter_i, 1} = sprintf('max(X)-min(X) = %4.1f<%d', max(X) - min(X), threshold_X);
             Pcrit(counter_i, 1)         = nan;
+            MAP_value(counter_i, 1)     = nan;
             R(counter_i, 1)             = nan;
         elseif p_fit(1) <= 0 
             Error_Message{counter_i, 1} = 'p_fit(1) <= 0';
             Pcrit(counter_i, 1)         = nan;
+            MAP_value(counter_i, 1)     = nan;
             R(counter_i, 1)             = nan;
         elseif p_fit(2) <= 0 
             Error_Message{counter_i, 1} = 'p_fit(2) <= 0';  
             Pcrit(counter_i, 1)         = nan;
+            MAP_value(counter_i, 1)     = nan;
             R(counter_i, 1)             = nan;
         end
     
