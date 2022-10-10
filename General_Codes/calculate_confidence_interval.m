@@ -46,6 +46,9 @@ function [Confidence_interval, MOE] = calculate_confidence_interval(Input, Confi
     if Confidence_level > 1
         Confidence_level = Confidence_level/100;
     end
+
+    % Remove nan variables
+    Input(isnan(Input)) = [];
     
     % Number of Samples
     N       = length(Input); 
@@ -79,6 +82,7 @@ function [Confidence_interval, MOE] = calculate_confidence_interval(Input, Confi
     MOE = val * SE;
     
     % Confidence Interval
-    Confidence_interval = [nanmean(Input)-MOE, nanmean(Input)+MOE]';
+    Mean_Val = mean(Input, "omitnan");
+    Confidence_interval = [Mean_Val-MOE, Mean_Val+MOE]';
     
 end
