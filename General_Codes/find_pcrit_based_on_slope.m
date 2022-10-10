@@ -174,6 +174,12 @@ function [Pcrit, R, Error_Message, Time_stamp, MAP_value] ...
         X               = X(Idx_uni);
         Y               = Y(Idx_uni);
 
+        % Remove outliers 
+        xP = prctile(X, [5 95]); 
+        select_Idx = X > xP(1) & X < xP(2);
+        X = X(select_Idx);
+        Y = Y(select_Idx);
+
         if length(X) < threshold_Length 
 
             Error_Message{counter_i, 1} = sprintf('length(X)=%d<%d', length(X), threshold_Length);
@@ -188,13 +194,7 @@ function [Pcrit, R, Error_Message, Time_stamp, MAP_value] ...
 
             continue; 
         end
-
-        % Remove outliers 
-        xP = prctile(X, [5 95]); 
-        select_Idx = X > xP(1) & X < xP(2);
-        X = X(select_Idx);
-        Y = Y(select_Idx);
-
+        
         %
         %warning('off');
         %p_fit           = robustfit(X, Y);
