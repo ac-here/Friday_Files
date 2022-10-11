@@ -54,7 +54,8 @@ function plot_bar_error(X_names, Y, Y_MOE, Vars, h_values, N, y_label)
 
     Bar_width   = 0.8;
     X           = (1:length(X_names));
-    bar(X, Y', Bar_width); pbaspect([1 1 1]);
+    bar(X, Y', Bar_width); 
+    %pbaspect([1 1 1]);
     set(gca, 'XTickLabel', X_names);
     hold on
     
